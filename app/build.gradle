@@ -81,4 +81,7 @@ dependencies {
 
     //View model
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+
+    //Coil for Images
+    implementation "io.coil-kt:coil-compose:2.2.2"
 }
