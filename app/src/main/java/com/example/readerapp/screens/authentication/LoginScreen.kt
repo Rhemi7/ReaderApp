@@ -110,6 +110,7 @@ fun UserForm(
 
         SubmitButton(textId = if (isCreateAccount) "Create Account" else "Login", loading = loading, validInputs = valid ) {
             onDone(email.value.trim(), password.value.trim())
+            keyboardController?.hide()
         }
     }
 }
