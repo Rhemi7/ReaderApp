@@ -2,6 +2,7 @@ package com.example.readerapp.screens.authentication
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -22,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.readerapp.R
 import com.example.readerapp.components.EmailInput
 import com.example.readerapp.components.InputField
 import com.example.readerapp.components.PasswordInput
@@ -37,16 +41,41 @@ import com.example.readerapp.components.ReaderText
 
 @Composable
 fun LoginScreen(navController: NavController) {
+    val showLoginForm = rememberSaveable() {
+     mutableStateOf(true)
+    }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             ReaderText()
+            if (showLoginForm.value)
             UserForm(loading = false, isCreateAccount = false) {
                 email, password ->
                 Log.d("Form", "LoginScreen: $email $password")
             }
+            else {
+                UserForm(loading = false, isCreateAccount = true) { email, password ->
+
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(15.dp))
+        Row(
+            modifier = Modifier.padding(15.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val text = if (showLoginForm.value) "SIgn up" else "Login"
+            Text(text = "New User")
+            Text(text = text, modifier = Modifier
+                .clickable {
+                    showLoginForm.value = !showLoginForm.value
+                }
+                .padding(start = 5.dp),
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colors.secondaryVariant)
         }
     }
 }
@@ -87,6 +116,10 @@ fun UserForm(
         )
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        if (isCreateAccount) Text(text = stringResource(id = R.string.create_acct),
+            modifier = Modifier.padding(4.dp) ) else Text(
+            text = ""
+        )
         EmailInput(
             emailState = email,
             enabled = !loading,
