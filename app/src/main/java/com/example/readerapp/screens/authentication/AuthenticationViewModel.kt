@@ -19,19 +19,24 @@ class AuthenticationViewModel: ViewModel() {
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
 
-    fun createUserWithEmailAndPassword(email: String, password: String) {
+    fun createUserWithEmailAndPassword(email: String, password: String, home: () -> Unit) {
         viewModelScope.launch {
-            try {
-                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-
-                } else {
-                    Log.d("SIE", "createUserWithEmailAndPassword: ${task.result} ")
+            if(_loading.value == false) {
+                    _loading.value = true
+                    try {
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                home()
+                            } else {
+                                android.util.Log.d("SIE", "createUserWithEmailAndPassword: ${task.result} ")
+                            }
+                                _loading.value = false
+                        }
+                    } catch (e: java.lang.Exception) {
+                        android.util.Log.d("SIE", "createUserWithEmailAndPassword: ")
+                    }
                 }
-                }
-            } catch (e: java.lang.Exception) {
-                Log.d("SIE", "createUserWithEmailAndPassword: ")
-            }
         }
     }
     

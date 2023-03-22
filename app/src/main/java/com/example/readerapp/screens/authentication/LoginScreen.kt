@@ -60,8 +60,11 @@ fun LoginScreen(navController: NavController, viewModel: AuthenticationViewModel
                 }
             }
             else {
-                UserForm(loading = false, isCreateAccount = true) { email, password ->
-
+                UserForm(loading = false, isCreateAccount = true) {
+                        email, password ->
+                    viewModel.createUserWithEmailAndPassword(email, password) {
+                        navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                    }
                 }
             }
         }
