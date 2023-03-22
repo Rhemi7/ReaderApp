@@ -38,9 +38,10 @@ import com.example.readerapp.components.EmailInput
 import com.example.readerapp.components.InputField
 import com.example.readerapp.components.PasswordInput
 import com.example.readerapp.components.ReaderText
+import com.example.readerapp.navigation.ReaderScreens
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: AuthenticationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val showLoginForm = rememberSaveable() {
      mutableStateOf(true)
     }
@@ -54,6 +55,9 @@ fun LoginScreen(navController: NavController) {
             UserForm(loading = false, isCreateAccount = false) {
                 email, password ->
                 Log.d("Form", "LoginScreen: $email $password")
+                viewModel.signInWithEmailAndPassword(email, password) {
+                    navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                }
             }
             else {
                 UserForm(loading = false, isCreateAccount = true) { email, password ->

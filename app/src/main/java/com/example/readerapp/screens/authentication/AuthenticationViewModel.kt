@@ -22,8 +22,9 @@ class AuthenticationViewModel: ViewModel() {
     fun createUserWithEmailAndPassword(email: String, password: String) {
         viewModelScope.launch {
             try {
-                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-                        task -> if (task.isSuccessful) {
+                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+
                 } else {
                     Log.d("SIE", "createUserWithEmailAndPassword: ${task.result} ")
                 }
@@ -34,13 +35,15 @@ class AuthenticationViewModel: ViewModel() {
         }
     }
     
-    fun signInWithEmailAndPassword(email: String, password: String)
+    fun signInWithEmailAndPassword(email: String, password: String, home: () -> Unit)
     = viewModelScope.launch {
         try {
             auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
                     task -> if (task.isSuccessful) {
+                        //Take Users to the home screen
+                        home()
             } else {
-                Log.d("LGE", "signInWithEmailAndPassword: ${task.result} ")
+                Log.d("LGE", "signInWithEmailAndPassword: Logged in ${task.result} ")
             }
             }
         } catch (e: java.lang.Exception) {
