@@ -1,6 +1,7 @@
 package com.example.readerapp.screens.search
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,9 +28,8 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.readerapp.components.InputField
 import com.example.readerapp.components.ReaderAppBar
-import com.example.readerapp.model.MBook
+import com.example.readerapp.model.Item
 import com.example.readerapp.navigation.ReaderScreens
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Preview
@@ -47,41 +47,46 @@ fun SearchScreen(navController: NavController = NavController(LocalContext.curre
         }
     }) {
         Surface() {
-            val listOfBooks = listOf<MBook>(
-                MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-                MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-                MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-                MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-                MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null)
-            )
+
 
             Column {
                 SearchForm(modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                    viewModel = viewModel ) {query ->
+                ) {query ->
                     viewModel.searchBooks(query)
 
                 }
                 Spacer(modifier = Modifier.height(13.dp))
-
-
-
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    items(listOfBooks) { book ->
-                        BookRowCard(book = book, navController = navController)
-                    }
-                }
+                BookList(navController, viewModel)
             }
         }
     }
 }
 
 @Composable
-fun BookRowCard(book: MBook, navController: NavController) {
+fun BookList(navController: NavController, viewModel: SearchViewModel) {
+    val listOfBooks = viewModel.list
+
+//    if (viewModel.listOfBooks.value.loading == true) {
+//        CircularProgressIndicator()
+//    } else {
+//        Log.d("ComposeBooks", "BookList ${viewModel.listOfBooks.value.data}")
+//    }
+
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        items(listOfBooks) { book ->
+            BookRowCard(book = book, navController = navController)
+        }
+    }
+}
+
+@Composable
+fun BookRowCard(book: Item, navController: NavController) {
     Card(modifier = Modifier
         .padding(3.dp)
         .fillMaxWidth()
@@ -90,7 +95,11 @@ fun BookRowCard(book: MBook, navController: NavController) {
         elevation = 7.dp
     ) {
         Row(verticalAlignment = Alignment.Top) {
-            val imageUrl = "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=80&q=80"
+            val imageUrl = if(book.volumeInfo.imageLinks.smallThumbnail.isEmpty())
+                "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=80&q=80"
+            else {
+                book.volumeInfo.imageLinks.smallThumbnail
+            }
             Image(
                 painter = rememberAsyncImagePainter(imageUrl),
                 contentDescription = "Book Image",
@@ -102,9 +111,9 @@ fun BookRowCard(book: MBook, navController: NavController) {
                     )
             )
             Column() {
-                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
+                Text(text = book.volumeInfo.title.toString(), overflow = TextOverflow.Ellipsis)
                 Text(
-                    text = "Authors ${book.authors}",
+                    text = "Authors ${book.volumeInfo.authors}",
                     overflow = TextOverflow.Clip,
                     style = MaterialTheme.typography.caption
                 )
@@ -117,7 +126,7 @@ fun BookRowCard(book: MBook, navController: NavController) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchForm(modifier: Modifier = Modifier,
-               viewModel: SearchViewModel,
+//               viewModel: SearchViewModel,
                loading: Boolean = false,
                hint: String = "Search",
                onSearch: (String) -> Unit = {}) {
