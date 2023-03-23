@@ -1,6 +1,7 @@
 package com.example.readerapp.di
 
 import com.example.readerapp.network.BooksAPI
+import com.example.readerapp.repository.BookRepository
 import com.example.readerapp.utils.Constants
 import dagger.Module
 import dagger.Provides
@@ -13,6 +14,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Singleton
+    @Provides
+    fun provideBookRepository(api: BooksAPI) = BookRepository(api = api)
 
     @Singleton
     @Provides

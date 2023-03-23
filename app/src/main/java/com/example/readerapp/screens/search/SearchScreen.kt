@@ -22,17 +22,19 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.readerapp.components.InputField
 import com.example.readerapp.components.ReaderAppBar
 import com.example.readerapp.model.MBook
 import com.example.readerapp.navigation.ReaderScreens
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Preview
 @Composable
-fun SearchScreen(navController: NavController = NavController(LocalContext.current)) {
+fun SearchScreen(navController: NavController = NavController(LocalContext.current), viewModel: SearchViewModel = hiltViewModel()) {
 
     Scaffold(topBar = {
         ReaderAppBar(
@@ -56,7 +58,11 @@ fun SearchScreen(navController: NavController = NavController(LocalContext.curre
             Column {
                 SearchForm(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp) )
+                    .padding(16.dp),
+                    viewModel = viewModel ) {query ->
+                    viewModel.searchBooks(query)
+
+                }
                 Spacer(modifier = Modifier.height(13.dp))
 
 
@@ -111,6 +117,7 @@ fun BookRowCard(book: MBook, navController: NavController) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchForm(modifier: Modifier = Modifier,
+               viewModel: SearchViewModel,
                loading: Boolean = false,
                hint: String = "Search",
                onSearch: (String) -> Unit = {}) {

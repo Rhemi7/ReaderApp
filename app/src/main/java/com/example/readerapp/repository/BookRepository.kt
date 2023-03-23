@@ -1,5 +1,6 @@
 package com.example.readerapp.repository
 
+import android.annotation.SuppressLint
 import com.example.readerapp.data.DataOrException
 import com.example.readerapp.model.Item
 import com.example.readerapp.network.BooksAPI
@@ -22,6 +23,7 @@ class BookRepository @Inject constructor(private val  api: BooksAPI) {
         return  dataOrException
     }
 
+    @SuppressLint("SuspiciousIndentation")
     suspend fun getBookInfo(bookId: String): DataOrException<Item, Boolean, Exception> {
 
         val response = try {
