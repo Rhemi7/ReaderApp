@@ -20,6 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,21 +69,21 @@ fun SearchScreen(navController: NavController = NavController(LocalContext.curre
 fun BookList(navController: NavController, viewModel: SearchViewModel) {
     val listOfBooks = viewModel.list
 
-//    if (viewModel.listOfBooks.value.loading == true) {
-//        CircularProgressIndicator()
-//    } else {
-//        Log.d("ComposeBooks", "BookList ${viewModel.listOfBooks.value.data}")
-//    }
-
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp)
-    ) {
-        items(listOfBooks) { book ->
-            BookRowCard(book = book, navController = navController)
+    if (viewModel.isLoading) {
+       LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(listOfBooks) { book ->
+                BookRowCard(book = book, navController = navController)
+            }
         }
     }
+
+
+
 }
 
 @Composable
@@ -113,10 +114,26 @@ fun BookRowCard(book: Item, navController: NavController) {
             Column() {
                 Text(text = book.volumeInfo.title.toString(), overflow = TextOverflow.Ellipsis)
                 Text(
-                    text = "Authors ${book.volumeInfo.authors}",
+                    text = "Authors: ${book.volumeInfo.authors}",
                     overflow = TextOverflow.Clip,
+                    fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.caption
                 )
+
+                Text(
+                    text = "Date: ${book.volumeInfo.publishedDate}",
+                    overflow = TextOverflow.Clip,
+                    fontStyle = FontStyle.Italic,
+                    style = MaterialTheme.typography.caption
+                )
+
+                Text(
+                    text = "${book.volumeInfo.categories}",
+                    overflow = TextOverflow.Clip,
+                    fontStyle = FontStyle.Italic,
+                    style = MaterialTheme.typography.caption
+                )
+
             }
         }
 

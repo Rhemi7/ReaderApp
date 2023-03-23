@@ -22,6 +22,7 @@ class SearchViewModel @Inject constructor(private val repository: BookRepository
         mutableStateOf(DataOrException(null, true, Exception("")))
 
     var list: List<Item> by mutableStateOf(listOf())
+    var isLoading: Boolean by mutableStateOf(false)
 
     init {
         loadBooks()
@@ -32,7 +33,8 @@ class SearchViewModel @Inject constructor(private val repository: BookRepository
     }
 
     fun searchBooks(query: String) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch {
+            isLoading = true
             if(query.isEmpty()) {
                 return@launch
             }
@@ -40,15 +42,16 @@ class SearchViewModel @Inject constructor(private val repository: BookRepository
                 when (val response = repository.getBooks2(query)) {
                     is Resource.Success -> {
                         list = response.data!!
+                        if(list.isNotEmpty()) isLoading = false
                     }
                     is Resource.Error -> {
                         Log.e("Books Error", "searchBooks: Failed Getting Books", )
                     }
-                    else -> {}
+                    else -> {isLoading = false}
                 }
             } catch (ex: java.lang.Exception) {
                 Log.e("Books Error", "searchBooks: ${ex.message.toString()}", )
-
+                isLoading = false
             }
         }
     }
