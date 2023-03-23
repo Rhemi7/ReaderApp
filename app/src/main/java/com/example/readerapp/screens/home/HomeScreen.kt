@@ -30,7 +30,7 @@ fun HomeScreen(navController: NavController) {
     },
         floatingActionButton = {
         FabContent(onTap = {
-
+            navController.navigate(ReaderScreens.SearchScreen.name)
         })
         }) {
             Surface(modifier = Modifier.fillMaxSize()) {
