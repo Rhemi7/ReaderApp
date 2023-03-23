@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -68,7 +69,9 @@ fun InputField(
         singleLine = isSingleLine,
         textStyle = TextStyle(fontSize = 18.sp,
             color = MaterialTheme.colors.onBackground),
-        modifier = modifier.padding(bottom = 10.dp, start = 10.dp, end = 10.dp).fillMaxWidth( ),
+        modifier = modifier
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
+            .fillMaxWidth(),
         enabled= enabled,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = onAction
@@ -149,8 +152,10 @@ fun TitleSection(modifier: Modifier= Modifier, label: String) {
 
 @Composable
 fun ReaderAppBar(title: String,
+                 icon: ImageVector? = null,
                  showProfile: Boolean = true,
-                 navController: NavController
+                 navController: NavController,
+                onBackArrowClick: () -> Unit = {}
 ) {
     TopAppBar(title = {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -163,6 +168,14 @@ fun ReaderAppBar(title: String,
                         .scale(0.9f)
                 )
             }
+            if (icon != null) {
+                Icon(imageVector = icon,
+                    contentDescription = "Arrow Back",
+                    tint = Color.Red.copy(alpha = 0.7f),
+                    modifier = Modifier.clickable { onBackArrowClick.invoke() })
+
+            }
+            Spacer(modifier = Modifier.width(40.dp))
             Text(
                 text = title,
                 color = Color.Red.copy(0.7f),
@@ -177,9 +190,16 @@ fun ReaderAppBar(title: String,
                     navController.navigate(ReaderScreens.LoginScreen.name)
                 }
             }) {
-                Icon(imageVector = Icons.Filled.Logout,
-                    contentDescription = "Log Out",
-                    tint = Color.Green.copy(alpha = 0.4f))
+                if (showProfile) {
+                    Row() {
+                        Icon(imageVector = Icons.Filled.Logout,
+                            contentDescription = "Log Out",
+                            tint = Color.Green.copy(alpha = 0.4f))
+                    }
+                } else {
+                    Box{}
+                }
+
             }
         },
         backgroundColor = Color.Transparent,
