@@ -2,6 +2,7 @@ package com.example.readerapp.repository
 
 import android.annotation.SuppressLint
 import com.example.readerapp.data.DataOrException
+import com.example.readerapp.data.Resource
 import com.example.readerapp.model.Item
 import com.example.readerapp.network.BooksAPI
 import javax.inject.Inject
@@ -34,5 +35,28 @@ class BookRepository @Inject constructor(private val  api: BooksAPI) {
             bookInfoDataOrException.e = e
         }
         return  bookInfoDataOrException
+    }
+
+    suspend fun getBooks2(searchQuery: String): Resource<List<Item>> {
+       return try {
+            Resource.Loading(data = true)
+            val itemList = api.getAllBooks(searchQuery).items
+           if( (itemList.isNotEmpty()))
+               Resource.Loading(data = false)
+            Resource.Success(data = itemList)
+        } catch(ex: java.lang.Exception) {
+            Resource.Error(message = ex.message.toString())
+        }
+    }
+
+    suspend fun getBookInfo2(bookId: String): Resource<Item> {
+        val response = try {
+            Resource.Loading(data = true)
+            api.getBookInfo(bookId)
+        } catch (ex: java.lang.Exception) {
+            return Resource.Error(message = "An Error Occured")
+        }
+        Resource.Loading(data = false)
+        return Resource.Success(data = response)
     }
 }
