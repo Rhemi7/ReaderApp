@@ -32,6 +32,7 @@ import com.example.readerapp.components.ReaderAppBar
 import com.example.readerapp.components.RoundedButton
 import com.example.readerapp.data.Resource
 import com.example.readerapp.model.Item
+import com.example.readerapp.model.MBook
 import com.example.readerapp.navigation.ReaderScreens
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -138,8 +139,8 @@ fun ReaderBookDetailsScreen(navController: NavController,
                             "Save",
                             radius = 30
                         ) {
-                            val db = FirebaseFirestore.getInstance()
-//                            saveToFirebase()
+                            val book = MBook()
+                            saveToFirebase(book)
                         }
                         Spacer(modifier = Modifier.width(20.dp))
                         RoundedButton(
@@ -157,4 +158,8 @@ fun ReaderBookDetailsScreen(navController: NavController,
         }
     }
 
+}
+
+fun saveToFirebase(book: MBook) {
+    val db = FirebaseFirestore.getInstance()
 }
