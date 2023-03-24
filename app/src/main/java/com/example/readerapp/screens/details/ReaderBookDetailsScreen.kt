@@ -20,9 +20,11 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -31,12 +33,13 @@ import com.example.readerapp.components.RoundedButton
 import com.example.readerapp.data.Resource
 import com.example.readerapp.model.Item
 import com.example.readerapp.navigation.ReaderScreens
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
-@Preview
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ReaderBookDetailsScreen(navController: NavController = NavController(LocalContext.current),
-                            bookId: String = "",
+fun ReaderBookDetailsScreen(navController: NavController,
+                            bookId: String,
                             viewModel: DetailsViewModel = hiltViewModel()) {
 
     Scaffold(topBar = {
@@ -81,13 +84,24 @@ fun ReaderBookDetailsScreen(navController: NavController = NavController(LocalCo
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp, textAlign = TextAlign.Center
                     )
-                    Text(text = "Authors: ${bookInfo.data.volumeInfo.authors}")
-                    Text(text = "Page Count: ${bookInfo.data.volumeInfo.pageCount}")
-                    Text(text = "Categories: ${bookInfo.data.volumeInfo.categories}")
+                    val bookInfo = bookInfo.data.volumeInfo
+                    Text(text = "Authors: ${bookInfo.authors}")
+                    Text(text = "Page Count: ${bookInfo.pageCount}")
                     Text(
-                        text = "Published: ${bookInfo.data.volumeInfo.publishedDate}",
+                        text = "Categories: ${bookInfo.categories}",
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3
+                    )
+                    Text(
+                        text = "Published: ${bookInfo.publishedDate}",
                         textAlign = TextAlign.Center
                     )
+                    val cleanDesc = HtmlCompat.fromHtml(
+                        bookInfo.description,
+                        HtmlCompat.FROM_HTML_MODE_LEGACY
+                    ).toString()
+
+                    val localDims = LocalContext.current.resources.displayMetrics
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -96,12 +110,12 @@ fun ReaderBookDetailsScreen(navController: NavController = NavController(LocalCo
                                 shape = RectangleShape
                             )
                             .border(BorderStroke(width = 1.dp, color = Color.LightGray))
-                            .height(200.dp)
+                            .height(localDims.heightPixels.dp.times(0.09f))
                             .verticalScroll(
                                 rememberScrollState()
                             )
                     ) {
-                        Text(text = bookInfo.data.volumeInfo.description)
+                        Text(text = cleanDesc)
                     }
 
                     Row {
@@ -123,12 +137,17 @@ fun ReaderBookDetailsScreen(navController: NavController = NavController(LocalCo
                         RoundedButton(
                             "Save",
                             radius = 30
-                        )
+                        ) {
+                            val db = FirebaseFirestore.getInstance()
+//                            saveToFirebase()
+                        }
                         Spacer(modifier = Modifier.width(20.dp))
                         RoundedButton(
                             "Cancel",
                             radius = 30
-                        )
+                        ) {
+                            navController.popBackStack()
+                        }
                     }
 
                 }
