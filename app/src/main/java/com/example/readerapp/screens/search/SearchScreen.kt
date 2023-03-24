@@ -92,7 +92,9 @@ fun BookRowCard(book: Item, navController: NavController) {
         .padding(3.dp)
         .fillMaxWidth()
         .height(100.dp)
-        .clickable { },
+        .clickable {
+            navController.navigate(ReaderScreens.DetailsScreen.name + "/${book.id}")
+        },
         elevation = 7.dp
     ) {
         Row(verticalAlignment = Alignment.Top) {
