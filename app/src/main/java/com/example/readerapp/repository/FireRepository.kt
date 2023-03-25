@@ -19,8 +19,8 @@ class FireRepository @Inject constructor(private val queryBook: Query) {
             }
 
             if (!dataOrException.data.isNullOrEmpty()) dataOrException.loading = false
-        } catch (_: java.lang.Exception) {
-
+        } catch (e: java.lang.Exception) {
+            dataOrException.e = e
         }
 
         return  dataOrException
