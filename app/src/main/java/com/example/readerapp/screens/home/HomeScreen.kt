@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.readerapp.components.*
 import com.example.readerapp.model.MBook
@@ -24,7 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, homeScreenViewModel: HomeScreenViewModel = hiltViewModel()) {
     Scaffold(topBar = {
                       ReaderAppBar(title = "A.Reader", navController = navController)
     },
@@ -34,7 +35,7 @@ fun HomeScreen(navController: NavController) {
         })
         }) {
             Surface(modifier = Modifier.fillMaxSize()) {
-                HomeContent(navController)
+                HomeContent(navController, homeScreenViewModel)
             }
     }
 }
@@ -43,20 +44,35 @@ fun HomeScreen(navController: NavController) {
 
 @Composable
 fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
-    BookListCard()
-
+    HorizontalScrollableComponent(books) {
+        Log.d("TAG", "BookListArea: $it")
+    }
+//    BookListCard()
 }
 
 @Composable
-fun HomeContent(navController: NavController) {
+fun HomeContent(navController: NavController, homeScreenViewModel: HomeScreenViewModel = hiltViewModel()) {
 
-    val listOfBooks = listOf<MBook>(
-        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
-        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null)
-    )
+    var listOfBooks = emptyList<MBook>()
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    if(!homeScreenViewModel.dataR.value.data.isNullOrEmpty()) {
+        if (currentUser != null) {
+            listOfBooks= homeScreenViewModel.dataR.value.data?.toList()!!.filter { mBook ->
+                mBook.userId == currentUser.uid.toString()
+            }
+
+            Log.d("User Books", "HomeContent: ${listOfBooks.toString()}")
+        }
+    }
+
+//    val listOfBooks = listOf<MBook>(
+//        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
+//        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
+//        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
+//        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null),
+//        MBook(id = "gddh", title = "Things fall apart", authors = "All of us", notes = null)
+//    )
 
     val email = FirebaseAuth.getInstance().currentUser?.email
     val currentUserName = if (!email.isNullOrEmpty()) email.split("@")[0] else "N/A"
@@ -88,7 +104,7 @@ fun HomeContent(navController: NavController) {
                 Divider()
             }
         }
-        ReadingRightNowArea(books = listOf(), navController = navController)
+        ReadingRightNowArea(books = listOfBooks, navController = navController)
 
         TitleSection(label = "Reading List")
 
