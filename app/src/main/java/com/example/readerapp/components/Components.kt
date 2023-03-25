@@ -245,12 +245,7 @@ fun BookRating(score: Double = 4.5) {
 
 @Composable
 fun BookListCard(
-    book: MBook = MBook(
-        id = "hds",
-        title = "Sweet one",
-        authors = "Adam",
-        notes = "jdhjd"
-    ), onPressDetails: (String) -> Unit = {}
+    book: MBook , onPressDetails: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val resources = context.resources
@@ -268,7 +263,10 @@ fun BookListCard(
         Column(modifier = Modifier.width(screenWidth.dp - (spacing * 2)), horizontalAlignment = Alignment.Start) {
             Row(horizontalArrangement = Arrangement.Center) {
                 Image(
-                    painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=80&q=80"),
+                    painter = rememberAsyncImagePainter(
+                        book.photoUrl
+//                        "https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=80&q=80"
+                    ),
                     contentDescription = "Book Image",
                     modifier = Modifier
                         .height(140.dp)
