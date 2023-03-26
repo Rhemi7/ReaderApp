@@ -30,7 +30,7 @@ class HomeScreenViewModel @Inject constructor(private val repository: FireReposi
             dataR.value.loading = true
             dataR.value = repository.getAllBooksFromDatabase()
             if(!dataR.value.data.isNullOrEmpty()) dataR.value.loading = false
-            Log.d("Get Firestore Books", "getAllBooksFromDatabase: ${dataR.value.data?.toList().toString()}")
         }
+        Log.d("Get Firestore Books", "getAllBooksFromDatabase: ${dataR.value.data?.toList().toString()}")
     }
 }

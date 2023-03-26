@@ -1,8 +1,10 @@
 package com.example.readerapp.screens.update
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.widget.Space
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +27,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,6 +44,7 @@ import com.example.readerapp.data.Resource
 import com.example.readerapp.model.MBook
 import com.example.readerapp.navigation.ReaderScreens
 import com.example.readerapp.screens.home.HomeScreenViewModel
+import com.example.readerapp.utils.formatDate
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import java.sql.Timestamp
@@ -104,13 +108,6 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
     val notesText = remember {
         mutableStateOf("")
     }
-    SimpleForm(
-        defaultValue = if (book.notes.toString()
-                .isNotEmpty()
-        ) book.notes.toString() else "No thoughts available",
-    ) {
-        note -> notesText.value = note
-    }
 
     val isStartedReading = remember {
         mutableStateOf(false)
@@ -121,6 +118,14 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
 
     val ratingVal = remember {
         mutableStateOf(0)
+    }
+
+    val context = LocalContext.current
+
+    SimpleForm(
+        defaultValue = book.notes.toString().ifEmpty { "No thoughts available" },
+    ) {
+        note -> notesText.value = note
     }
 
     Row(
@@ -140,7 +145,7 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
                     )
                 }
             } else {
-                Text(text = "Started on ${book.startedReading}")
+                Text(text = "Started on ${formatDate(book.startedReading!!)}")
             }
 
         }
@@ -159,7 +164,7 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
                     )
                 }
             } else {
-                Text(text = "Finished on ${book.finishedReading}")
+                Text(text = "Finished on ${formatDate(book.finishedReading!!)}")
             }
 
         }
@@ -178,7 +183,7 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
        horizontalArrangement = Arrangement.SpaceAround
    ) {
        val changedNotes = book.notes != notesText.value
-       val changedRating = book.rating!!.toInt() != ratingVal.value
+       val changedRating = book.rating?.toInt() != ratingVal.value
        val isFinishedTimeStamp = if (isFinishedReading.value ) com.google.firebase.Timestamp.now() else book.finishedReading
        val isStartedTimestamp = if (isStartedReading.value) com.google.firebase.Timestamp.now() else book.startedReading
 //           navController.popBackStack()
@@ -197,9 +202,11 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
        ) {
           if (bookUpdate) {
               FirebaseFirestore.getInstance().collection("books").document(book.id!!)
-                  .update(bookToUpdate).addOnCompleteListener { task ->
-                      Log.d("UpdateBook", "ShowSimpleForm: ${task.result.toString()}")
+                  .update(bookToUpdate).addOnCompleteListener {
+                      showToast(context, "Book Updated Successfully")
+                      navController.navigate(ReaderScreens.ReaderHomeScreen.name)
               }.addOnFailureListener {
+                      Log.w("Error", "Error updating document" , it)
 
               }
 
@@ -214,13 +221,17 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
    }
 }
 
+fun showToast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SimpleForm(
     modifier: Modifier = Modifier,
-    loading: Boolean = true,
+    loading: Boolean = false,
     defaultValue: String = "Great Book",
-    onSearch: (String) -> Unit = {}
+    onSearch: (String) -> Unit
 ) {
     Column {
         val  textFieldValue = rememberSaveable {
@@ -255,17 +266,14 @@ fun ShowBookUpdate(bookInfo: DataOrException<List<MBook>, Boolean, java.lang.Exc
     Row {
         Spacer(modifier = Modifier.width(43.dp))
         if (bookInfo.data != null) {
-//            Log.d("MBook ID", "ShowBookUpdate: ${bookInfo.data!!.first().googleBookId}")
-//            Log.d("Book ID", "ShowBookUpdate: ${bookId}")
-
+            Log.d("MBook ID", "ShowBookUpdate: ${bookInfo.data!!.first().googleBookId}")
+            Log.d("Book ID", "ShowBookUpdate: ${bookId}")
+           val book = bookInfo.data!!.first{ mBook ->
+               mBook.googleBookId.toString() == bookId}
+            Log.d("Data displayed", "ShowBookUpdate: ${book.googleBookId}")
 
             Column(modifier = Modifier.padding(4.dp), verticalArrangement = Arrangement.Center) {
-                CardListItem(book = bookInfo.data!!.first{mBook ->
-//                    Log.d("MBook ID", "ShowBookUpdate: ${mBook.googleBookId}")
-//                    Log.d("Book ID", "ShowBookUpdate: ${bookId}")
-
-                    mBook.googleBookId == bookId
-                }, onPressDetails = {})
+                CardListItem(book = book, onPressDetails = {})
             }
         } else {
             Text(text = "No Data")
@@ -274,7 +282,7 @@ fun ShowBookUpdate(bookInfo: DataOrException<List<MBook>, Boolean, java.lang.Exc
 }
 
 @Composable
-fun CardListItem(book: MBook, onPressDetails: () -> Unit = {}) {
+fun CardListItem(book: MBook, onPressDetails: () -> Unit) {
     Card(modifier = Modifier
         .padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 8.dp)
         .clip(
