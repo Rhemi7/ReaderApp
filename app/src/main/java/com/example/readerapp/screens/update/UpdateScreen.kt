@@ -35,11 +35,15 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.readerapp.components.InputField
 import com.example.readerapp.components.RatingBar
 import com.example.readerapp.components.ReaderAppBar
+import com.example.readerapp.components.RoundedButton
 import com.example.readerapp.data.DataOrException
 import com.example.readerapp.data.Resource
 import com.example.readerapp.model.MBook
 import com.example.readerapp.navigation.ReaderScreens
 import com.example.readerapp.screens.home.HomeScreenViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import java.sql.Timestamp
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -167,6 +171,47 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
             ratingVal.value = rating
         }
     }
+    Spacer(modifier = Modifier.height(20.dp))
+
+   Row(
+       modifier = Modifier.fillMaxWidth(),
+       horizontalArrangement = Arrangement.SpaceAround
+   ) {
+       val changedNotes = book.notes != notesText.value
+       val changedRating = book.rating!!.toInt() != ratingVal.value
+       val isFinishedTimeStamp = if (isFinishedReading.value ) com.google.firebase.Timestamp.now() else book.finishedReading
+       val isStartedTimestamp = if (isStartedReading.value) com.google.firebase.Timestamp.now() else book.startedReading
+//           navController.popBackStack()
+
+       val bookUpdate = changedNotes || changedRating || isStartedReading.value || isFinishedReading.value
+       val bookToUpdate = hashMapOf(
+           "finished_reading_at" to isFinishedTimeStamp,
+           "started_reading_at" to isStartedTimestamp,
+           "rating" to ratingVal.value,
+           "notes" to notesText.value
+       ).toMap()
+
+       RoundedButton(
+           "Update",
+           radius = 30
+       ) {
+          if (bookUpdate) {
+              FirebaseFirestore.getInstance().collection("books").document(book.id!!)
+                  .update(bookToUpdate).addOnCompleteListener { task ->
+                      Log.d("UpdateBook", "ShowSimpleForm: ${task.result.toString()}")
+              }.addOnFailureListener {
+
+              }
+
+          }
+       }
+       RoundedButton(
+           "Cancel",
+           radius = 30
+       ) {
+           navController.popBackStack()
+       }
+   }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -210,14 +255,14 @@ fun ShowBookUpdate(bookInfo: DataOrException<List<MBook>, Boolean, java.lang.Exc
     Row {
         Spacer(modifier = Modifier.width(43.dp))
         if (bookInfo.data != null) {
-            Log.d("MBook ID", "ShowBookUpdate: ${bookInfo.data!!.first().googleBookId}")
-            Log.d("Book ID", "ShowBookUpdate: ${bookId}")
+//            Log.d("MBook ID", "ShowBookUpdate: ${bookInfo.data!!.first().googleBookId}")
+//            Log.d("Book ID", "ShowBookUpdate: ${bookId}")
 
 
             Column(modifier = Modifier.padding(4.dp), verticalArrangement = Arrangement.Center) {
                 CardListItem(book = bookInfo.data!!.first{mBook ->
-                    Log.d("MBook ID", "ShowBookUpdate: ${mBook.googleBookId}")
-                    Log.d("Book ID", "ShowBookUpdate: ${bookId}")
+//                    Log.d("MBook ID", "ShowBookUpdate: ${mBook.googleBookId}")
+//                    Log.d("Book ID", "ShowBookUpdate: ${bookId}")
 
                     mBook.googleBookId == bookId
                 }, onPressDetails = {})
