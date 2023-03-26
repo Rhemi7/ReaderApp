@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.readerapp.components.InputField
+import com.example.readerapp.components.RatingBar
 import com.example.readerapp.components.ReaderAppBar
 import com.example.readerapp.data.DataOrException
 import com.example.readerapp.data.Resource
@@ -114,6 +115,10 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
         mutableStateOf(false)
     }
 
+    val ratingVal = remember {
+        mutableStateOf(0)
+    }
+
     Row(
         modifier = Modifier.padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -153,6 +158,13 @@ fun ShowSimpleForm(book: MBook, navController: NavController) {
                 Text(text = "Finished on ${book.finishedReading}")
             }
 
+        }
+    }
+
+    Text(text = "Rating", modifier = Modifier.padding(bottom = 3.dp))
+    book.rating?.toInt().let {
+        RatingBar(rating = it!!) {rating ->
+            ratingVal.value = rating
         }
     }
 }
