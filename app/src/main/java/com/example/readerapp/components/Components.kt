@@ -309,9 +309,16 @@ fun BookListCard(
 
 
         }
+
+        val isStartedReading = remember {
+            mutableStateOf(false)
+        }
         Row(horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom) {
-            RoundedButton(label = "Reading", radius = 70)
+
+            isStartedReading.value = book.startedReading != null
+
+            RoundedButton(label = if (isStartedReading.value) "Reading" else "Not Yet", radius = 70)
         }
     }
 
