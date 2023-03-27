@@ -10,10 +10,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.sharp.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toUpperCase
@@ -27,6 +29,7 @@ import com.example.readerapp.model.MBook
 import com.example.readerapp.navigation.ReaderScreens
 import com.example.readerapp.screens.home.HomeScreenViewModel
 import com.example.readerapp.screens.search.BookRowCard
+import com.example.readerapp.utils.formatDate
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
 
@@ -155,7 +158,22 @@ fun BookStatsRowCard(book: MBook) {
                     )
             )
             Column() {
-                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
+                
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
+
+                    if (book.rating!! >= 4) {
+                        Spacer(modifier = Modifier.fillMaxWidth(0.8f))
+                        Icon(
+                            imageVector = Icons.Default.ThumbUp,
+                            contentDescription = "Thumbs Up",
+                            tint = Color.Green.copy(0.5f)
+                        )
+                    } else {
+                        Box {
+                        }
+                    }
+                }
                 Text(
                     text = "Authors: ${book.authors}",
                     overflow = TextOverflow.Clip,
@@ -164,14 +182,15 @@ fun BookStatsRowCard(book: MBook) {
                 )
 
                 Text(
-                    text = "Date: ${book.publishedDate}",
+                    text = "Started: ${formatDate(book.startedReading!!)}",
+                    softWrap = true,
                     overflow = TextOverflow.Clip,
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.caption
                 )
 
                 Text(
-                    text = "${book.categories}",
+                    text = "Finished ${formatDate(book.finishedReading!!)}",
                     overflow = TextOverflow.Clip,
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.caption
