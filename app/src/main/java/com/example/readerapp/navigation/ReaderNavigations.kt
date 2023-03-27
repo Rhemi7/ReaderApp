@@ -1,6 +1,7 @@
 package com.example.readerapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,6 +12,7 @@ import com.example.readerapp.screens.authentication.CreateAccountScreen
 import com.example.readerapp.screens.authentication.LoginScreen
 import com.example.readerapp.screens.details.ReaderBookDetailsScreen
 import com.example.readerapp.screens.home.HomeScreen
+import com.example.readerapp.screens.home.HomeScreenViewModel
 import com.example.readerapp.screens.search.SearchScreen
 import com.example.readerapp.screens.stats.ReaderStatsScreen
 import com.example.readerapp.screens.update.UpdateScreen
@@ -52,7 +54,9 @@ fun ReaderNavigation() {
             type = NavType.StringType
         })) {backStackEntry ->
             backStackEntry.arguments?.getString("bookId").let {
-                UpdateScreen(navController = navController, it.toString())
+                val viewModel = hiltViewModel<HomeScreenViewModel>()
+
+                UpdateScreen(navController = navController, it.toString(), viewModel = viewModel)
 
             }
         }

@@ -3,7 +3,6 @@ package com.example.readerapp.screens.update
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.widget.Space
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -39,7 +37,6 @@ import com.example.readerapp.components.RatingBar
 import com.example.readerapp.components.ReaderAppBar
 import com.example.readerapp.components.RoundedButton
 import com.example.readerapp.data.DataOrException
-import com.example.readerapp.data.Resource
 import com.example.readerapp.model.MBook
 import com.example.readerapp.navigation.ReaderScreens
 import com.example.readerapp.screens.home.HomeScreenViewModel
@@ -62,7 +59,9 @@ fun UpdateScreen(navController: NavController, bookId: String, viewModel: HomeSc
     }.value
 
     Scaffold(topBar = {
-        ReaderAppBar(title = "Update Book", icon = Icons.Default.ArrowBack, showProfile = false,navController = navController) {
+        ReaderAppBar(
+            title = "Update Book", icon = Icons.Default.ArrowBack, showProfile = false,
+            navController = navController) {
             navController.navigate(ReaderScreens.ReaderHomeScreen.name)
         }
     }) {
